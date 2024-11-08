@@ -1,7 +1,7 @@
 {
   "name": "movie-library_backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "rm -rf dist && tsc && cp -r public dist/",
     "dev": "ts-node-dev src/index.ts",
@@ -21,9 +21,12 @@
   },
   "dependencies": {
     "@types/cors": "^2.8.17",
+    "axios": "^1.7.7",
+    "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "file-type": "^16.5.4",
     "mongoose": "^8.6.0"
   }
 }

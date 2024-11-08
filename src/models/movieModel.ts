@@ -1,10 +1,7 @@
 import mongoose, { Model, Schema } from "mongoose";
-import dotenv from 'dotenv';
 
-dotenv.config();
 const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
 const SERVER_PORT = parseInt(process.env.SERVER_PORT || '3000');
-
 const SERVER_URI = `${SERVER_HOST}:${SERVER_PORT}`;
 
 export enum MIMETypeEnum {
@@ -19,14 +16,15 @@ export enum LanguagesEnum {
   German = 'de',
   French = 'fr',
   Swedish = 'sv',
-  Chinese = 'zh',
+  Zhongwen = 'zh',
   Japanese = 'ja',
   Korean = 'ko',
   Italian = 'it',
   Polish = 'pl',
   Danish = 'da',
   Dutch = 'nl',
-  Turkish = 'tr'
+  Turkish = 'tr',
+  Chinese = 'cn'
 }
 
 export interface MovieModel extends Document {
@@ -91,7 +89,8 @@ const MovieDataSchema = new Schema<MovieDataModel>({
   },
   overview: {
     type: String,
-    required: true,
+    default: "",
+    required: false,
   },
   posterPath: {
     type: String,
@@ -207,7 +206,8 @@ const MovieSchema = new Schema<MovieModel>({
 );
 
 MovieSchema.virtual('imagenUrl').get(function () {
-  return `http://${SERVER_URI}/public/images/movies/${this.imagenName}`;
+  return `${this.imagenName}`;
+  // return `http://${SERVER_URI}/public/images/movies/${this.imagenName}`;
 });
 
 // Habilita los getters al convertir el documento a JSON u objeto

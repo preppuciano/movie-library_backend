@@ -5,6 +5,10 @@
 node_modules/
 package-lock.json
 yarn.lock
+public/*
+!public/.gitkeep
+tmp/*
+!tmp/.gitkeep
 
 # Compiled output
 dist/

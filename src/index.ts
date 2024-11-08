@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
 import app from './app';
 import { connectMongoose } from './config/database';
-
-dotenv.config();
 
 const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
 const SERVER_PORT = parseInt(process.env.SERVER_PORT || '3000');

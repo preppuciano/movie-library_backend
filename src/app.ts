@@ -5,8 +5,6 @@ import cors from 'cors';
 import errorHandler from './middlewares/errorHandler';
 import path from 'path';
 
-dotenv.config();
-
 const API_VERSION = process.env.API_VERSION;
 const NODE_ENV = process.env.NODE_ENV;
 

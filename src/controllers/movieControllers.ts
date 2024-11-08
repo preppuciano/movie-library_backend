@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import Movie from "../models/movieModel";
+import Movie, { FileDataModel, MIMETypeEnum, MovieDataModel } from "../models/movieModel";
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import { uploadPhoto } from "../services/cloudinaryService";
 
 export async function getMoviesV1(_req: Request, res: Response) {
   try {
@@ -62,5 +66,101 @@ export async function getMovieById(req: Request, res: Response) {
     }
   } catch (err) {
     res.status(500).send({ success: false, message: 'An error occurred while fetching the data', error: err });
+  }
+}
+
+export async function fetchSaveMovie(req: Request<{}, {}, { imdbId: string }>, res: Response) {
+  const TMDBprefixImage = 'https://image.tmdb.org/t/p/w300_and_h450_bestv2';
+  const urlUS = `https://api.themoviedb.org/3/movie/${req.body.imdbId}?language=en-US`;
+  const urlES = `https://api.themoviedb.org/3/movie/${req.body.imdbId}?language=es-CL`;
+
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: `Bearer ${process.env.TMDB_ACCESS_TOKEN_KEY}`
+    }
+  };
+
+  const responseUS = await fetch(urlUS, options).then((res) => res.json());
+  const responseES = await fetch(urlES, options).then((res) => res.json());
+
+  const newMovieData: MovieDataModel = {
+    originalTitle: responseUS['original_title'],
+    originalLanguage: responseUS['original_language'],
+    imdbId: responseUS['imdb_id'],
+    id: responseUS['id'],
+    overview: responseUS['overview'],
+    voteAverage: responseUS['vote_average'],
+    releaseDate: responseUS['release_date'],
+    runtime: responseUS['runtime'],
+    backdropPath: responseUS['backdrop_path'],
+    title: responseES['title'],
+    genres: responseES['genres'],
+    videos: [],
+    posterPath: `${TMDBprefixImage}${responseUS['poster_path']}`,
+  }
+
+  const fileName = `${newMovieData.id}${path.extname(newMovieData.posterPath)}`;
+
+
+  let filePath: string;
+  const NODE_ENV = process.env.NODE_ENV || 'development';
+
+  if (NODE_ENV == 'production') {
+    filePath = path.join(__dirname, '../public/tmp', fileName);
+  } else {
+    filePath = path.join(__dirname, '../../public/tmp', fileName);
+  }
+
+  try {
+    const response = await axios({
+      url: newMovieData.posterPath,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    const writer = fs.createWriteStream(filePath);
+    response.data.pipe(writer);
+
+    writer.on('finish', async () => {
+      const photo = await uploadPhoto({ filePath: filePath, folderName: 'movies_new' });
+
+      const newFileData: FileDataModel = {
+        audios: [],
+        name: 'unknown',
+        mimeType: MIMETypeEnum.MKV,
+        subtitles: [],
+        size: 0,
+        resolution: { width: 1920, height: 1080 },
+        duration: 0,
+      }
+
+      const newMovie = new Movie(
+        {
+          id: newMovieData.id,
+          name: newMovieData.title,
+          year: newMovieData.releaseDate.split('-')[0],
+          imagenName: photo.url,
+          isWatched: false,
+          fileData: newFileData,
+          movieData: newMovieData,
+        }
+      )
+
+      try {
+        const savedMovie = await newMovie.save();
+        res.status(200).send({ success: true, message: 'Data fetched successfully', data: savedMovie });
+      } catch (err) {
+        res.status(500).send({ success: false, message: 'An error occurred while getting the images', error: err });
+      }
+    });
+
+    writer.on('error', (error) => {
+      throw error;
+    });
+
+  } catch (err) {
+    res.status(500).send({ success: false, message: 'An error occurred while getting the images', error: err });
   }
 }
