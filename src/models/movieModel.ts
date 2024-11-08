@@ -201,7 +201,7 @@ const MovieSchema = new Schema<MovieModel>({
   },
 },
   {
-    collection: 'movies_mongodb',
+    collection: 'movies',
   }
 );
 
