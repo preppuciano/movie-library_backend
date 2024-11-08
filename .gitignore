@@ -1,16 +1,9 @@
 # CUSTOM
-public/*
-!public/.gitkeep
-
 public/tmp/*
-!tmp/.gitkeep
+!public/tmp/.gitkeep
 
 public/images/*
 !public/images/.gitkeep
-
-public/images/movies/*
-!public/images/movies/.gitkeep
-
 
 # Node.js
 node_modules/
