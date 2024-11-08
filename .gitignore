@@ -1,14 +1,21 @@
 # CUSTOM
-# src/public/
+public/*
+!public/.gitkeep
+
+public/tmp/*
+!tmp/.gitkeep
+
+public/images/*
+!public/images/.gitkeep
+
+public/images/movies/*
+!public/images/movies/.gitkeep
+
 
 # Node.js
 node_modules/
 package-lock.json
 yarn.lock
-public/*
-!public/.gitkeep
-tmp/*
-!tmp/.gitkeep
 
 # Compiled output
 dist/
